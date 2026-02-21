@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>局域网文件共享</title>
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-primary text-white py-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="h3 mb-0"><i class="fa fa-share-alt"></i> 局域网文件共享</h1>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <button id="theme-toggle" class="theme-toggle-btn" type="button" role="switch" aria-checked="false" aria-label="切换主题">
+                                <span class="theme-toggle-track" aria-hidden="true">
+                                    <span class="theme-toggle-thumb"></span>
+                                </span>
+                                <span class="theme-toggle-label">主题</span>
+                            </button>
+                            <div id="device-info" class="small ms-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="device-name-container">
+                    <input type="text" id="device-name-input" class="form-control form-control-sm d-inline-block" style="width: 150px;" placeholder="设备名称">
+                    <button id="save-device-name" class="btn btn-sm btn-light ms-1">保存</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container py-4">
+            <!-- Status Alert -->
+            <div id="status-alert" class="alert alert-info alert-dismissible fade show d-none" role="alert">
+                <span id="status-message"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Devices -->
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-devices"></i> 在线设备
+                                <span class="badge bg-success ms-2" id="device-count">0</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul id="device-list" class="list-group list-group-flush"></ul>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0"><i class="fa fa-upload"></i> 上传文件</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="file-input" class="form-label">选择文件</label>
+                                <input type="file" class="form-control" id="file-input" multiple>
+                            </div>
+                            <button id="upload-btn" class="btn btn-primary w-100" disabled>
+                                <i class="fa fa-cloud-upload"></i> 上传到服务器
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Transfer Progress -->
+                    <div class="card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fa fa-tasks"></i> 传输进度</h5>
+                            <button id="clear-transfer-list" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-eraser"></i> 清空已结束
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="transfer-list" class="list-group list-group-flush"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Files -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-files-o"></i> 文件列表
+                                <span class="badge bg-secondary ms-2" id="file-count">0</span>
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <button id="clear-files" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa fa-trash"></i> 清空列表
+                                </button>
+                                <button id="refresh-files" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa fa-refresh"></i> 刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="file-table" class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>文件名</th>
+                                            <th>大小</th>
+                                            <th>上传时间</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="file-table-body"></tbody>
+                                </table>
+                            </div>
+                            <div id="empty-files" class="text-center py-5 text-muted d-none">
+                                <i class="fa fa-folder-open-o fa-5x mb-3"></i>
+                                <p>暂无文件</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Socket.io Client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/app.js"></script>
+    <script src="js/fileManager.js"></script>
+    <script src="js/deviceManager.js"></script>
+</body>
+</html>
+

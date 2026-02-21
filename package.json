@@ -1,0 +1,31 @@
+{
+  "name": "lan-file-share",
+  "version": "1.0.0",
+  "description": "A LAN file sharing application with P2P support",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "keywords": [
+    "file-sharing",
+    "lan",
+    "p2p",
+    "webrtc",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "multer": "^1.4.5-lts.1",
+    "chokidar": "^3.5.3",
+    "uuid": "^9.0.1",
+    "cors": "^2.8.5",
+    "simple-peer": "^9.11.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
