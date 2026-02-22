@@ -1,4 +1,6 @@
-﻿# lan-file-transfer-hub
+﻿# 本项目没有一行代码是手写，完全使用AI实现
+
+# lan-file-transfer-hub
 
 > A LAN file transfer web app with multi-file upload, real-time progress tracking, and cross-device transfer status sync.
 
@@ -110,15 +112,18 @@ npm run dev
 ## 常见问题
 
 1. 其他设备访问不到页面
+
 - 确认设备在同一局域网
 - 检查服务端机器防火墙是否放行端口 `3000`
 - 用服务端局域网 IP 访问，而不是 `localhost`
 
 2. 上传失败
+
 - 检查文件大小和格式是否符合 `server/config.js` 配置
 - 检查磁盘空间是否充足
 
 3. 中文文件名异常
+
 - 项目已做文件名编码兼容修复
 - 若浏览器缓存旧脚本，请强制刷新（`Ctrl + F5`）
 
@@ -130,4 +135,3 @@ npm run dev
 ## 许可证
 
 MIT
-
