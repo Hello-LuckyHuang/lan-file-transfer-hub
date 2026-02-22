@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "title": "LAN File Share"
+  },
+  "header": {
+    "title": "LAN File Share",
+    "theme": "Theme",
+    "theme_to_light": "Switch to light mode",
+    "theme_to_dark": "Switch to dark mode",
+    "device_name_placeholder": "Device name",
+    "save_device_name": "Save",
+    "language_label_en": "EN",
+    "language_label_zh": "ZH",
+    "switch_to_english": "Switch to English",
+    "switch_to_chinese": "Switch to Chinese"
+  },
+  "section": {
+    "online_devices": "Online Devices",
+    "upload_file": "Upload Files",
+    "select_file": "Select Files",
+    "transfer_progress": "Transfer Progress",
+    "file_list": "File List"
+  },
+  "action": {
+    "upload_to_server": "Upload to Server",
+    "clear_finished": "Clear Finished",
+    "clear_list": "Clear List",
+    "refresh": "Refresh",
+    "download": "Download",
+    "delete": "Delete",
+    "confirm": "OK"
+  },
+  "table": {
+    "filename": "Filename",
+    "size": "Size",
+    "upload_time": "Uploaded At",
+    "actions": "Actions"
+  },
+  "empty": {
+    "no_files": "No files yet"
+  },
+  "device": {
+    "default_name_prefix": "Device",
+    "unknown_device": "Unknown device",
+    "type": {
+      "mobile": "Mobile",
+      "tablet": "Tablet",
+      "desktop": "Desktop"
+    }
+  },
+  "file": {
+    "unknown_file": "Unknown file"
+  },
+  "transfer": {
+    "close_alt": "Close",
+    "device_prefix": "Device: {deviceName}",
+    "cancel_upload": "Cancel upload",
+    "cannot_clear_while_in_progress": "Cannot clear while in progress",
+    "clear_record": "Clear record",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "failed_title": "Transfer Failed",
+    "status": {
+      "uploading": "Uploading",
+      "downloading": "Downloading",
+      "completed": "Completed",
+      "failed": "Failed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown"
+    }
+  },
+  "status": {
+    "connecting_server": "Connecting to server...",
+    "connected_server": "Connected to server",
+    "disconnected_server": "Disconnected from server",
+    "connect_failed": "Failed to connect to server",
+    "device_name_required": "Device name cannot be empty",
+    "device_name_updated": "Device name updated",
+    "device_online": "{name} is online",
+    "device_updated": "{name} updated device name",
+    "device_offline": "A device went offline",
+    "upload_config_load_failed": "Failed to load upload config. Client-side validation is skipped",
+    "load_files_failed": "Failed to load files",
+    "files_updated_upload": "File {name} uploaded, list refreshed",
+    "files_updated_delete": "File {name} deleted, list refreshed",
+    "delete_uploading_from_list_blocked": "Uploading files cannot be deleted from file list. Cancel upload in transfer panel first",
+    "file_busy_cannot_delete": "File {name} is transferring and cannot be deleted now",
+    "file_deleted_success": "File {name} deleted",
+    "file_delete_failed": "Failed to delete file",
+    "file_list_empty": "File list is empty",
+    "all_files_in_transfer": "All files are transferring, cannot clear",
+    "clear_files_success": "Cleared {count} files",
+    "clear_files_failed": "Failed to clear files",
+    "no_finished_transfer_items": "No finished transfer items to clear",
+    "finished_transfer_items_cleared": "Cleared {count} finished transfer items",
+    "please_select_upload_files": "Please select files to upload",
+    "upload_success": "File {name} uploaded successfully",
+    "upload_failed": "File {name} upload failed",
+    "upload_cancelled": "File {name} upload cancelled",
+    "download_started": "File {name} download started",
+    "in_progress_item_cannot_clear": "In-progress item cannot be cleared"
+  },
+  "confirm": {
+    "delete_file": "Delete file \"{name}\"?",
+    "clear_all_files": "Clear all {count} files? This cannot be undone.",
+    "clear_partial_files": "Clear {deleteCount} files? {skipCount} files are in transfer and will be skipped.",
+    "cancel_upload": "File \"{name}\" is uploading. Cancel it?"
+  },
+  "validation": {
+    "file_size_exceeded_title": "File {name} exceeds size limit",
+    "file_size_exceeded_details": "Current size is {fileSize}, max allowed is {maxSize}.",
+    "file_type_not_allowed_title": "File type not allowed: {name}",
+    "file_type_not_allowed_details": "Allowed uploads: JPEG/PNG/GIF images, PDF/Word documents, Excel spreadsheets, ZIP/RAR archives, TXT, MP3, and MP4.",
+    "file_extension_mismatch_title": "File extension/type mismatch: {name}",
+    "file_extension_mismatch_details": "Extension .{ext} does not match MIME type {mime}.",
+    "file_name_too_long_title": "Filename too long: {name}",
+    "file_name_too_long_details": "Filename cannot exceed {maxLength} characters.",
+    "file_name_invalid_title": "Filename contains invalid characters: {name}",
+    "file_name_invalid_details": "Filename cannot include < > : / \\ | ? * \" '.",
+    "file_security_risk_title": "Security risk detected: {name}",
+    "file_security_risk_details": "Executable or script files are not allowed.",
+    "file_disguised_title": "Potential disguised file: {name}",
+    "file_disguised_details": "Suspicious double extension detected. Verify file source.",
+    "server_size_limit_details": "File size exceeds server limit: {maxSize}.",
+    "server_type_limit_details": "File type is not allowed. Allowed types: JPEG/PNG/GIF/PDF/Word/Excel/ZIP/RAR/TXT/MP3/MP4.",
+    "http_status_details": "HTTP status: {status}",
+    "network_error_details": "Network issue or server unavailable. Please retry later.",
+    "leave_page_uploading": "Files are uploading. Leaving now will interrupt upload."
+  }
+}

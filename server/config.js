@@ -33,7 +33,7 @@ const uploadValidation = {
   BLOCKED_EXTENSIONS: ['exe', 'bat', 'cmd', 'sh', 'php', 'jsp', 'asp', 'aspx', 'js', 'vbs', 'ps1', 'py'],
   FILE_NAME_MAX_LENGTH: 255,
   FILE_NAME_INVALID_PATTERN: "[<>:/\\\\|?*\"']",
-  ALLOWED_TYPE_DESCRIPTION: '允许上传：图片（JPEG/PNG/GIF）、文档（PDF/Word）、表格（Excel）、压缩包（ZIP/RAR）、文本（TXT）、音频（MP3）、视频（MP4）。'
+  ALLOWED_TYPE_DESCRIPTION: ''
 };
 
 module.exports = {

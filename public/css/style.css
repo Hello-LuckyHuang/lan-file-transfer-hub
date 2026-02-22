@@ -1686,13 +1686,13 @@ html[data-theme="dark"] .upload-state-progress .upload-state-progress-text {
 /* ==================== Input Group ==================== */
 header .container {
     position: relative;
-    padding-right: 280px;
+    padding-right: 360px;
 }
 
-.device-name-container {
+.device-controls {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+    gap: 0.75rem;
     position: absolute;
     right: 10px;
     top: 50%;
@@ -1701,8 +1701,16 @@ header .container {
     transition: all var(--transition-normal);
 }
 
+.device-name-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    position: relative;
+    transition: all var(--transition-normal);
+}
+
 .device-name-container:hover {
-    transform: translateY(calc(-50% - 1px));
+    transform: translateY(-1px);
 }
 
 /* ==================== Input Focus Animation ==================== */
@@ -1872,6 +1880,32 @@ html[data-theme="dark"] header {
     border-bottom-color: var(--border-color);
 }
 
+.lang-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 68px;
+    height: 34px;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--lang-btn-border);
+    background: var(--lang-btn-bg);
+    color: var(--lang-btn-text);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.lang-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--lang-btn-border-hover);
+    background: var(--lang-btn-bg-hover);
+}
+
 .theme-toggle-btn {
     display: inline-flex;
     align-items: center;
@@ -1937,6 +1971,23 @@ html[data-theme="dark"] #file-table tbody tr:hover {
 }
 
 @media (max-width: 768px) {
+    header .container {
+        padding-right: var(--spacing-md);
+    }
+
+    .device-controls {
+        position: static;
+        transform: none;
+        margin-top: 0.75rem;
+        justify-content: flex-start;
+    }
+
+    .lang-toggle-btn {
+        min-width: 62px;
+        height: 32px;
+        padding: 0.25rem 0.45rem;
+    }
+
     .theme-toggle-btn {
         min-width: 72px;
         height: 32px;
@@ -1962,6 +2013,11 @@ html[data-theme="dark"] #file-table tbody tr:hover {
     --btn-primary-border: #b6bec8;
     --btn-outline-danger-bg: rgba(239, 68, 68, 0.06);
     --btn-outline-secondary-bg: rgba(75, 85, 99, 0.08);
+    --lang-btn-bg: linear-gradient(145deg, #eef2f7 0%, #dde4ec 100%);
+    --lang-btn-bg-hover: linear-gradient(145deg, #f5f8fb 0%, #d6dee9 100%);
+    --lang-btn-border: #c5cfdb;
+    --lang-btn-border-hover: #9aa8b8;
+    --lang-btn-text: #243244;
 }
 
 html[data-theme="dark"] {
@@ -1977,6 +2033,11 @@ html[data-theme="dark"] {
     --btn-primary-border: #808b99;
     --btn-outline-danger-bg: rgba(248, 81, 73, 0.16);
     --btn-outline-secondary-bg: rgba(241, 245, 249, 0.12);
+    --lang-btn-bg: linear-gradient(145deg, #4c5968 0%, #394555 100%);
+    --lang-btn-bg-hover: linear-gradient(145deg, #5b697a 0%, #455264 100%);
+    --lang-btn-border: #708093;
+    --lang-btn-border-hover: #8ea0b5;
+    --lang-btn-text: #edf3fb;
 }
 
 .btn {

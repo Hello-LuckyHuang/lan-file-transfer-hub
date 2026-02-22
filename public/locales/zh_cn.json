@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "title": "局域网文件共享"
+  },
+  "header": {
+    "title": "局域网文件共享",
+    "theme": "主题",
+    "theme_to_light": "切换到亮色模式",
+    "theme_to_dark": "切换到暗色模式",
+    "device_name_placeholder": "设备名称",
+    "save_device_name": "保存",
+    "language_label_en": "EN",
+    "language_label_zh": "中文",
+    "switch_to_english": "切换为英文",
+    "switch_to_chinese": "切换为中文"
+  },
+  "section": {
+    "online_devices": "在线设备",
+    "upload_file": "上传文件",
+    "select_file": "选择文件",
+    "transfer_progress": "传输进度",
+    "file_list": "文件列表"
+  },
+  "action": {
+    "upload_to_server": "上传到服务器",
+    "clear_finished": "清空已结束",
+    "clear_list": "清空列表",
+    "refresh": "刷新",
+    "download": "下载",
+    "delete": "删除",
+    "confirm": "确定"
+  },
+  "table": {
+    "filename": "文件名",
+    "size": "大小",
+    "upload_time": "上传时间",
+    "actions": "操作"
+  },
+  "empty": {
+    "no_files": "暂无文件"
+  },
+  "device": {
+    "default_name_prefix": "设备",
+    "unknown_device": "未知设备",
+    "type": {
+      "mobile": "手机",
+      "tablet": "平板",
+      "desktop": "电脑"
+    }
+  },
+  "file": {
+    "unknown_file": "未知文件"
+  },
+  "transfer": {
+    "close_alt": "关闭",
+    "device_prefix": "设备：{deviceName}",
+    "cancel_upload": "取消上传",
+    "cannot_clear_while_in_progress": "传输中不可清除",
+    "clear_record": "清除记录",
+    "failed": "失败",
+    "cancelled": "已取消",
+    "failed_title": "传输失败",
+    "status": {
+      "uploading": "上传中",
+      "downloading": "下载中",
+      "completed": "已完成",
+      "failed": "失败",
+      "pending": "等待中",
+      "cancelled": "已取消",
+      "unknown": "未知"
+    }
+  },
+  "status": {
+    "connecting_server": "正在连接到服务器...",
+    "connected_server": "已连接到服务器",
+    "disconnected_server": "与服务器断开连接",
+    "connect_failed": "连接服务器失败",
+    "device_name_required": "设备名称不能为空",
+    "device_name_updated": "设备名称已更新",
+    "device_online": "{name} 已上线",
+    "device_updated": "{name} 已更新设备名称",
+    "device_offline": "有设备离线",
+    "upload_config_load_failed": "加载上传配置失败，已跳过前端校验",
+    "load_files_failed": "加载文件失败",
+    "files_updated_upload": "文件 {name} 已上传，列表已更新",
+    "files_updated_delete": "文件 {name} 已删除，列表已更新",
+    "delete_uploading_from_list_blocked": "上传中的文件不能从文件列表删除，请在传输进度栏取消上传",
+    "file_busy_cannot_delete": "文件 {name} 正在传输，暂时无法删除",
+    "file_deleted_success": "文件 {name} 删除成功",
+    "file_delete_failed": "删除文件失败",
+    "file_list_empty": "文件列表为空",
+    "all_files_in_transfer": "当前文件都在传输中，无法清空",
+    "clear_files_success": "成功清空 {count} 个文件",
+    "clear_files_failed": "清空文件失败",
+    "no_finished_transfer_items": "没有可清除的已结束传输项",
+    "finished_transfer_items_cleared": "已清除 {count} 个已结束传输项",
+    "please_select_upload_files": "请选择要上传的文件",
+    "upload_success": "文件 {name} 上传成功",
+    "upload_failed": "文件 {name} 上传失败",
+    "upload_cancelled": "文件 {name} 已取消上传",
+    "download_started": "文件 {name} 已开始下载",
+    "in_progress_item_cannot_clear": "正在传输的项目不能清除"
+  },
+  "confirm": {
+    "delete_file": "确定要删除文件 \"{name}\" 吗？",
+    "clear_all_files": "确定要清空全部 {count} 个文件吗？此操作不可恢复。",
+    "clear_partial_files": "确定要清空 {deleteCount} 个文件吗？有 {skipCount} 个文件正在传输，将被跳过。",
+    "cancel_upload": "文件 \"{name}\" 正在上传，确定要取消吗？"
+  },
+  "validation": {
+    "file_size_exceeded_title": "文件 {name} 大小超出限制",
+    "file_size_exceeded_details": "当前文件大小为 {fileSize}，最大允许 {maxSize}。",
+    "file_type_not_allowed_title": "文件 {name} 类型不允许",
+    "file_type_not_allowed_details": "允许上传：图片（JPEG/PNG/GIF）、文档（PDF/Word）、表格（Excel）、压缩包（ZIP/RAR）、文本（TXT）、音频（MP3）、视频（MP4）。",
+    "file_extension_mismatch_title": "文件 {name} 扩展名与类型不匹配",
+    "file_extension_mismatch_details": "扩展名 .{ext} 与 MIME 类型 {mime} 不一致，请确认文件格式。",
+    "file_name_too_long_title": "文件 {name} 名称过长",
+    "file_name_too_long_details": "文件名长度不能超过 {maxLength} 个字符。",
+    "file_name_invalid_title": "文件 {name} 名称包含非法字符",
+    "file_name_invalid_details": "文件名不能包含 < > : / \\ | ? * \" '。",
+    "file_security_risk_title": "文件 {name} 存在安全风险",
+    "file_security_risk_details": "不允许上传可执行文件或脚本文件。",
+    "file_disguised_title": "文件 {name} 可能是伪装文件",
+    "file_disguised_details": "检测到可疑双扩展名，请确认文件来源后再上传。",
+    "server_size_limit_details": "文件大小超限，当前上限为 {maxSize}。",
+    "server_type_limit_details": "文件类型不允许。允许类型：JPEG/PNG/GIF/PDF/Word/Excel/ZIP/RAR/TXT/MP3/MP4。",
+    "http_status_details": "HTTP 状态码：{status}",
+    "network_error_details": "网络异常或服务器不可用，请稍后重试。",
+    "leave_page_uploading": "有文件正在上传，离开页面会中断上传。"
+  }
+}

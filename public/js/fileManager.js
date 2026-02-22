@@ -58,7 +58,7 @@
 
       event.preventDefault();
       // Modern browsers ignore custom text but require returnValue to trigger prompt.
-      event.returnValue = '有文件正在上传，离开页面会中断上传。';
+      event.returnValue = this.app.t('validation.leave_page_uploading');
     });
   }
 
@@ -76,12 +76,21 @@
         return response.json();
       })
       .then((config) => {
-        this.validationConfig = config;
+        const descriptionMap = config && typeof config.allowedTypeDescription === 'object'
+          ? config.allowedTypeDescription
+          : null;
+        this.validationConfig = {
+          ...config,
+          allowedTypeDescriptionMap: descriptionMap,
+          allowedTypeDescription: typeof config.allowedTypeDescription === 'string'
+            ? config.allowedTypeDescription
+            : this.pickAllowedTypeDescription(descriptionMap)
+        };
         return config;
       })
       .catch((error) => {
         console.error('Load upload config error:', error);
-        this.app.showStatus('加载上传配置失败，已跳过前端校验', 'warning');
+        this.app.showStatus(this.app.t('status.upload_config_load_failed'), 'warning');
         this.validationConfig = {
           maxFileSize: Number.MAX_SAFE_INTEGER,
           allowedMimeTypes: [],
@@ -89,6 +98,7 @@
           blockedExtensions: [],
           fileNameMaxLength: 255,
           fileNameInvalidPattern: "[<>:/\\\\|?*\"']",
+          allowedTypeDescriptionMap: null,
           allowedTypeDescription: ''
         };
         return this.validationConfig;
@@ -104,6 +114,12 @@
     if (this.socket && this.socket.connected) {
       this.socket.emit('request-active-transfers');
     }
+  }
+
+  pickAllowedTypeDescription(descriptionMap) {
+    if (!descriptionMap || typeof descriptionMap !== 'object') return '';
+    const locale = this.app.getLocale();
+    return descriptionMap[locale] || descriptionMap.zh_cn || descriptionMap.en_us || '';
   }
 
   handleActiveTransfers(payload) {
@@ -125,7 +141,7 @@
         status: item.status,
         progress: item.progress || 0,
         deviceId: item.deviceId,
-        deviceName: item.deviceName || '未知设备',
+        deviceName: item.deviceName || this.app.t('device.unknown_device'),
         isLocal: item.deviceId === this.socket.id
       });
     });
@@ -151,7 +167,7 @@
       status: payload.status,
       progress: payload.progress || 0,
       deviceId: payload.deviceId,
-      deviceName: payload.deviceName || '未知设备',
+      deviceName: payload.deviceName || this.app.t('device.unknown_device'),
       isLocal: payload.deviceId === this.socket.id
     });
   }
@@ -215,11 +231,11 @@
     const current = this.transferItems.get(transfer.transferId) || {};
     const merged = {
       transferId: transfer.transferId,
-      fileName: transfer.fileName || current.fileName || '未知文件',
+      fileName: transfer.fileName || current.fileName || this.app.t('file.unknown_file'),
       status: transfer.status || current.status || 'pending',
       progress: Number.isFinite(transfer.progress) ? this.normalizeProgress(transfer.progress) : (current.progress || 0),
       deviceId: transfer.deviceId || current.deviceId || '',
-      deviceName: transfer.deviceName || current.deviceName || '未知设备',
+      deviceName: transfer.deviceName || current.deviceName || this.app.t('device.unknown_device'),
       isLocal: typeof transfer.isLocal === 'boolean' ? transfer.isLocal : !!current.isLocal
     };
 
@@ -240,7 +256,7 @@
         <div class="mb-1 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <button class="btn btn-sm btn-danger btn-delete-transfer" data-transfer-id="${transfer.transferId}">
-              <img src="icon/close.svg" alt="关闭" class="btn-delete-transfer-icon">
+              <img src="icon/close.svg" alt="${this.app.t('transfer.close_alt')}" class="btn-delete-transfer-icon">
             </button>
             <small class="font-weight-medium transfer-filename"></small>
           </div>
@@ -262,7 +278,7 @@
 
     item.className = `list-group-item transfer-item ${transfer.status}`;
     item.querySelector('.transfer-filename').textContent = transfer.fileName;
-    item.querySelector('.transfer-device').textContent = `设备：${transfer.deviceName}`;
+    item.querySelector('.transfer-device').textContent = this.app.t('transfer.device_prefix', { deviceName: transfer.deviceName });
 
     const statusEl = item.querySelector('.transfer-status');
     statusEl.className = `transfer-status text-${this.getStatusColor(transfer.status)}`;
@@ -276,11 +292,11 @@
 
     const deleteBtn = item.querySelector('.btn-delete-transfer');
     if (transfer.status === 'uploading' && transfer.isLocal) {
-      deleteBtn.title = '取消上传';
+      deleteBtn.title = this.app.t('transfer.cancel_upload');
     } else if (this.isInProgressStatus(transfer.status)) {
-      deleteBtn.title = '传输中不可清除';
+      deleteBtn.title = this.app.t('transfer.cannot_clear_while_in_progress');
     } else {
-      deleteBtn.title = '清除记录';
+      deleteBtn.title = this.app.t('transfer.clear_record');
     }
   }
 
@@ -321,7 +337,7 @@
       this.renderFileList();
     } catch (error) {
       console.error('Error loading files:', error);
-      this.app.showStatus('加载文件失败', 'danger');
+      this.app.showStatus(this.app.t('status.load_files_failed'), 'danger');
     }
   }
 
@@ -330,11 +346,11 @@
 
     if (data.action === 'upload' && data.fileInfo) {
       this.cleanupUploadStatesByName(data.fileInfo.originalName);
-      this.app.showStatus(`文件 ${data.fileInfo.originalName} 已上传，列表已更新`, 'success');
+      this.app.showStatus(this.app.t('status.files_updated_upload', { name: data.fileInfo.originalName }), 'success');
     }
 
     if (data.action === 'delete' && data.filename) {
-      this.app.showStatus(`文件 ${data.filename} 已删除，列表已更新`, 'info');
+      this.app.showStatus(this.app.t('status.files_updated_delete', { name: data.filename }), 'info');
     }
   }
 
@@ -424,18 +440,18 @@
       } else if (state.status === 'failed') {
         actionHtml = `
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-danger">失败</span>
+            <span class="badge bg-danger">${this.app.t('transfer.failed')}</span>
             <button class="btn btn-sm btn-outline-danger delete-upload-state-btn" data-state-id="${state.id}">
-              <i class="fa fa-trash"></i> 删除
+              <i class="fa fa-trash"></i> ${this.app.t('action.delete')}
             </button>
           </div>
         `;
       } else {
         actionHtml = `
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-secondary">已取消</span>
+            <span class="badge bg-secondary">${this.app.t('transfer.cancelled')}</span>
             <button class="btn btn-sm btn-outline-danger delete-upload-state-btn" data-state-id="${state.id}">
-              <i class="fa fa-trash"></i> 删除
+              <i class="fa fa-trash"></i> ${this.app.t('action.delete')}
             </button>
           </div>
         `;
@@ -474,10 +490,10 @@
         <td>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-primary file-list-action-btn download-btn" data-filename="${file.filename}">
-              <i class="fa fa-download"></i> 下载
+              <i class="fa fa-download"></i> ${this.app.t('action.download')}
             </button>
             <button class="btn btn-sm btn-danger file-list-action-btn delete-btn" data-filename="${file.filename}">
-              <i class="fa fa-trash"></i> 删除
+              <i class="fa fa-trash"></i> ${this.app.t('action.delete')}
             </button>
           </div>
         </td>
@@ -499,7 +515,7 @@
     const current = this.uploadFileStates.get(state.id) || {};
     const next = {
       id: state.id,
-      fileName: state.fileName || current.fileName || '未知文件',
+      fileName: state.fileName || current.fileName || this.app.t('file.unknown_file'),
       fileSize: Number.isFinite(state.fileSize) ? state.fileSize : (current.fileSize || 0),
       status: state.status || current.status || 'uploading',
       progress: Number.isFinite(state.progress) ? this.normalizeProgress(state.progress) : (current.progress || 0),
@@ -561,7 +577,7 @@
     const state = this.uploadFileStates.get(id);
     if (!state) return;
     if (state.status === 'uploading') {
-      this.app.showStatus('上传中的文件不能从文件列表删除，请在传输进度栏取消上传', 'warning');
+      this.app.showStatus(this.app.t('status.delete_uploading_from_list_blocked'), 'warning');
       return;
     }
     this.uploadFileStates.delete(id);
@@ -570,38 +586,41 @@
 
   async deleteFile(filename) {
     if (this.transferringFiles.has(filename)) {
-      this.app.showStatus(`文件 ${filename} 正在传输，暂时无法删除`, 'warning');
+      this.app.showStatus(this.app.t('status.file_busy_cannot_delete', { name: filename }), 'warning');
       return;
     }
 
-    if (!confirm(`确定要删除文件 "${filename}" 吗？`)) return;
+    if (!confirm(this.app.t('confirm.delete_file', { name: filename }))) return;
 
     try {
       const response = await fetch(`/api/files/${encodeURIComponent(filename)}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Delete failed');
-      this.app.showStatus(`文件 ${filename} 删除成功`, 'success');
+      this.app.showStatus(this.app.t('status.file_deleted_success', { name: filename }), 'success');
       this.loadFiles();
     } catch (error) {
       console.error('Delete file error:', error);
-      this.app.showStatus('删除文件失败', 'danger');
+      this.app.showStatus(this.app.t('status.file_delete_failed'), 'danger');
     }
   }
 
   async clearFiles() {
     if (this.files.length === 0) {
-      this.app.showStatus('文件列表为空', 'info');
+      this.app.showStatus(this.app.t('status.file_list_empty'), 'info');
       return;
     }
 
     const filesToDelete = this.files.filter((file) => !this.transferringFiles.has(file.filename));
     if (filesToDelete.length === 0) {
-      this.app.showStatus('当前文件都在传输中，无法清空', 'warning');
+      this.app.showStatus(this.app.t('status.all_files_in_transfer'), 'warning');
       return;
     }
 
     const confirmMessage = filesToDelete.length === this.files.length
-      ? `确定要清空全部 ${this.files.length} 个文件吗？此操作不可恢复。`
-      : `确定要清空 ${filesToDelete.length} 个文件吗？有 ${this.files.length - filesToDelete.length} 个文件正在传输，将被跳过。`;
+      ? this.app.t('confirm.clear_all_files', { count: this.files.length })
+      : this.app.t('confirm.clear_partial_files', {
+        deleteCount: filesToDelete.length,
+        skipCount: this.files.length - filesToDelete.length
+      });
 
     if (!confirm(confirmMessage)) return;
 
@@ -609,11 +628,11 @@
       for (const file of filesToDelete) {
         await fetch(`/api/files/${encodeURIComponent(file.filename)}`, { method: 'DELETE' });
       }
-      this.app.showStatus(`成功清空 ${filesToDelete.length} 个文件`, 'success');
+      this.app.showStatus(this.app.t('status.clear_files_success', { count: filesToDelete.length }), 'success');
       this.loadFiles();
     } catch (error) {
       console.error('Clear files error:', error);
-      this.app.showStatus('清空文件失败', 'danger');
+      this.app.showStatus(this.app.t('status.clear_files_failed'), 'danger');
     }
   }
 
@@ -629,17 +648,17 @@
     });
 
     if (removed === 0) {
-      this.app.showStatus('没有可清除的已结束传输项', 'info');
+      this.app.showStatus(this.app.t('status.no_finished_transfer_items'), 'info');
       return;
     }
-    this.app.showStatus(`已清除 ${removed} 个已结束传输项`, 'success');
+    this.app.showStatus(this.app.t('status.finished_transfer_items_cleared', { count: removed }), 'success');
   }
 
   async uploadFiles() {
     const fileInput = document.getElementById('file-input');
     const files = fileInput.files;
     if (!files || files.length === 0) {
-      this.app.showStatus('请选择要上传的文件', 'warning');
+      this.app.showStatus(this.app.t('status.please_select_upload_files'), 'warning');
       return;
     }
 
@@ -670,8 +689,11 @@
     const maxSize = this.validationConfig.maxFileSize;
     if (file.size > maxSize) {
       this.showTransferError(
-        `文件 ${file.name} 大小超出限制`,
-        `当前文件大小为 ${this.app.formatFileSize(file.size)}，最大允许 ${this.app.formatFileSize(maxSize)}。`
+        this.app.t('validation.file_size_exceeded_title', { name: file.name }),
+        this.app.t('validation.file_size_exceeded_details', {
+          fileSize: this.app.formatFileSize(file.size),
+          maxSize: this.app.formatFileSize(maxSize)
+        })
       );
       return false;
     }
@@ -683,8 +705,8 @@
     if (allowedTypes.length === 0) return true;
     if (!allowedTypes.includes(file.type)) {
       this.showTransferError(
-        `文件 ${file.name} 类型不允许`,
-        this.validationConfig.allowedTypeDescription || '当前文件类型不在允许列表中。'
+        this.app.t('validation.file_type_not_allowed_title', { name: file.name }),
+        this.validationConfig.allowedTypeDescription || this.app.t('validation.file_type_not_allowed_details')
       );
       return false;
     }
@@ -699,8 +721,8 @@
 
     if (allowedExts && !allowedExts.includes(ext)) {
       this.showTransferError(
-        `文件 ${file.name} 扩展名与类型不匹配`,
-        `扩展名 .${ext} 与 MIME 类型 ${file.type} 不一致，请确认文件格式。`
+        this.app.t('validation.file_extension_mismatch_title', { name: file.name }),
+        this.app.t('validation.file_extension_mismatch_details', { ext, mime: file.type })
       );
       return false;
     }
@@ -711,14 +733,20 @@
     const fileName = file.name;
     const maxLength = this.validationConfig.fileNameMaxLength || 255;
     if (fileName.length > maxLength) {
-      this.showTransferError(`文件 ${fileName} 名称过长`, `文件名长度不能超过 ${maxLength} 个字符。`);
+      this.showTransferError(
+        this.app.t('validation.file_name_too_long_title', { name: fileName }),
+        this.app.t('validation.file_name_too_long_details', { maxLength })
+      );
       return false;
     }
 
     const pattern = this.validationConfig.fileNameInvalidPattern || "[<>:/\\\\|?*\"']";
     const invalidChars = new RegExp(pattern);
     if (invalidChars.test(fileName)) {
-      this.showTransferError(`文件 ${fileName} 名称包含非法字符`, '文件名不能包含 < > : / \\ | ? * " \'。');
+      this.showTransferError(
+        this.app.t('validation.file_name_invalid_title', { name: fileName }),
+        this.app.t('validation.file_name_invalid_details')
+      );
       return false;
     }
     return true;
@@ -729,13 +757,19 @@
     const suspiciousExtensions = this.validationConfig.blockedExtensions || [];
     const ext = fileName.substring(fileName.lastIndexOf('.') + 1);
     if (suspiciousExtensions.includes(ext)) {
-      this.showTransferError(`文件 ${file.name} 存在安全风险`, '不允许上传可执行文件或脚本文件。');
+      this.showTransferError(
+        this.app.t('validation.file_security_risk_title', { name: file.name }),
+        this.app.t('validation.file_security_risk_details')
+      );
       return false;
     }
 
     const hasSuspiciousSuffix = suspiciousExtensions.some((x) => fileName.endsWith(`.${x}`));
     if (fileName.includes('.') && hasSuspiciousSuffix) {
-      this.showTransferError(`文件 ${file.name} 可能是伪装文件`, '检测到可疑双扩展名，请确认文件来源后再上传。');
+      this.showTransferError(
+        this.app.t('validation.file_disguised_title', { name: file.name }),
+        this.app.t('validation.file_disguised_details')
+      );
       return false;
     }
     return true;
@@ -857,23 +891,25 @@
           progress: 100,
           fileSize: file.size
         });
-        this.app.showStatus(`文件 ${file.name} 上传成功`, 'success');
+        this.app.showStatus(this.app.t('status.upload_success', { name: file.name }), 'success');
         this.loadFiles();
         return;
       }
 
-      let errorMessage = `文件 ${file.name} 上传失败`;
+      let errorMessage = this.app.t('status.upload_failed', { name: file.name });
       let details = '';
       try {
         const response = JSON.parse(xhr.responseText);
         errorMessage = response.error || errorMessage;
         if (errorMessage.includes('File size exceeds limit')) {
-          details = `文件大小超限，当前上限为 ${this.app.formatFileSize(this.validationConfig.maxFileSize)}。`;
+          details = this.app.t('validation.server_size_limit_details', {
+            maxSize: this.app.formatFileSize(this.validationConfig.maxFileSize)
+          });
         } else if (errorMessage.includes('Invalid file type')) {
-          details = this.validationConfig.allowedTypeDescription || '文件类型不允许，请检查文件格式。';
+          details = this.validationConfig.allowedTypeDescription || this.app.t('validation.server_type_limit_details');
         }
       } catch (_) {
-        details = `HTTP 状态码：${xhr.status}`;
+        details = this.app.t('validation.http_status_details', { status: xhr.status });
       }
 
       this.upsertTransferItem({
@@ -941,7 +977,7 @@
         updatedAt: new Date().toISOString()
       });
 
-      this.app.showStatus(`文件 ${file.name} 已取消上传`, 'info');
+      this.app.showStatus(this.app.t('status.upload_cancelled', { name: file.name }), 'info');
     });
 
     xhr.addEventListener('error', () => {
@@ -974,8 +1010,8 @@
         updatedAt: new Date().toISOString()
       });
 
-      const errorMessage = `文件 ${file.name} 上传失败`;
-      const details = '网络异常或服务器不可用，请稍后重试。';
+      const errorMessage = this.app.t('status.upload_failed', { name: file.name });
+      const details = this.app.t('validation.network_error_details');
       this.app.showStatus(errorMessage, 'danger');
       this.showTransferError(errorMessage, details);
     });
@@ -1049,7 +1085,7 @@
         status: 'completed',
         progress: 100
       });
-      this.app.showStatus(`文件 ${filename} 已开始下载`, 'success');
+      this.app.showStatus(this.app.t('status.download_started', { name: filename }), 'success');
     }, 1000);
   }
 
@@ -1058,7 +1094,7 @@
     if (!transfer) return;
 
     if (transfer.status === 'uploading' && transfer.isLocal) {
-      if (!confirm(`文件 "${transfer.fileName}" 正在上传，确定要取消吗？`)) {
+      if (!confirm(this.app.t('confirm.cancel_upload', { name: transfer.fileName }))) {
         return;
       }
 
@@ -1079,7 +1115,7 @@
     }
 
     if (this.isInProgressStatus(transfer.status)) {
-      this.app.showStatus('正在传输的项目不能清除', 'warning');
+      this.app.showStatus(this.app.t('status.in_progress_item_cannot_clear'), 'warning');
       return;
     }
 
@@ -1135,14 +1171,14 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title"><i class="fa fa-exclamation-circle"></i> 传输失败</h5>
+              <h5 class="modal-title"><i class="fa fa-exclamation-circle"></i> ${this.app.t('transfer.failed_title')}</h5>
             </div>
             <div class="modal-body">
               <p class="mb-3">${errorMessage}</p>
               ${details ? `<p class="text-muted small">${details}</p>` : ''}
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary" id="error-modal-close">确定</button>
+              <button type="button" class="btn btn-primary" id="error-modal-close">${this.app.t('action.confirm')}</button>
             </div>
           </div>
         </div>
@@ -1180,14 +1216,24 @@
 
   getStatusText(status) {
     const texts = {
-      uploading: '上传中',
-      downloading: '下载中',
-      completed: '已完成',
-      failed: '失败',
-      pending: '等待中',
-      cancelled: '已取消'
+      uploading: this.app.t('transfer.status.uploading'),
+      downloading: this.app.t('transfer.status.downloading'),
+      completed: this.app.t('transfer.status.completed'),
+      failed: this.app.t('transfer.status.failed'),
+      pending: this.app.t('transfer.status.pending'),
+      cancelled: this.app.t('transfer.status.cancelled')
     };
-    return texts[status] || '未知';
+    return texts[status] || this.app.t('transfer.status.unknown');
+  }
+
+  rerenderTransferItems() {
+    this.transferItems.forEach((transfer) => {
+      this.renderTransferItem(transfer);
+    });
+
+    if (this.validationConfig && this.validationConfig.allowedTypeDescriptionMap) {
+      this.validationConfig.allowedTypeDescription = this.pickAllowedTypeDescription(this.validationConfig.allowedTypeDescriptionMap);
+    }
   }
 }
 

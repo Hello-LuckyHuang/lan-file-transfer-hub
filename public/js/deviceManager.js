@@ -1,4 +1,4 @@
-﻿class DeviceManager {
+class DeviceManager {
   constructor(app) {
     this.app = app;
     this.socket = app.socket;
@@ -19,17 +19,17 @@
 
     this.socket.on('device-connected', (device) => {
       this.addDevice(device);
-      this.app.showStatus(`${device.name} 已上线`, 'success');
+      this.app.showStatus(this.app.t('status.device_online', { name: device.name }), 'success');
     });
 
     this.socket.on('device-updated', (device) => {
       this.updateDevice(device);
-      this.app.showStatus(`${device.name} 已更新设备名称`, 'info');
+      this.app.showStatus(this.app.t('status.device_updated', { name: device.name }), 'info');
     });
 
     this.socket.on('device-disconnected', (deviceId) => {
       this.removeDevice(deviceId);
-      this.app.showStatus('有设备离线', 'warning');
+      this.app.showStatus(this.app.t('status.device_offline'), 'warning');
     });
   }
 
@@ -74,7 +74,7 @@
               <strong>${device.name}</strong>
             </div>
             <div class="device-info">
-              <small>${device.ip} · ${device.type}</small>
+              <small>${device.ip} · ${this.app.getDeviceTypeLabel(device.type)}</small>
             </div>
           </div>
         </div>
@@ -88,13 +88,7 @@
     const deviceInfo = document.getElementById('device-info');
     const deviceName = this.app.getDeviceName();
     const deviceType = this.app.getDeviceType();
-    const typeLabelMap = {
-      mobile: '手机',
-      tablet: '平板',
-      desktop: '电脑'
-    };
-
-    deviceInfo.innerHTML = `<strong>${deviceName}</strong> · ${typeLabelMap[deviceType] || deviceType}`;
+    deviceInfo.innerHTML = `<strong>${deviceName}</strong> · ${this.app.getDeviceTypeLabel(deviceType)}`;
   }
 
   getDevices() {
