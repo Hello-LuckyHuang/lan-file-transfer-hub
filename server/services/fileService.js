@@ -86,6 +86,12 @@ class FileService {
 
   isValidFileType(mimeType) {
     const allowedTypes = this.uploadValidation.ALLOWED_MIME_TYPES || config.ALLOWED_FILE_TYPES || [];
+    if (this.uploadValidation.ALLOW_UNLISTED_MIME_TYPES === true || allowedTypes.length === 0) {
+      return true;
+    }
+    if (this.uploadValidation.ALLOW_UNKNOWN_MIME_TYPES === true && (!mimeType || mimeType === 'application/octet-stream')) {
+      return true;
+    }
     return allowedTypes.includes(mimeType);
   }
 

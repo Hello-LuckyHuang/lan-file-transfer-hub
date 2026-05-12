@@ -11,6 +11,10 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
 
 const server = http.createServer(app);
+server.requestTimeout = config.TRANSFER_TIMEOUT_MS;
+server.headersTimeout = config.TRANSFER_TIMEOUT_MS;
+server.setTimeout(config.TRANSFER_TIMEOUT_MS);
+
 const io = socketIo(server, {
   cors: {
     origin: '*',

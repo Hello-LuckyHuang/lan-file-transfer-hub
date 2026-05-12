@@ -62,6 +62,18 @@ function resolveUniqueFilename(originalName) {
   return candidate;
 }
 
+function getFileExtension(name) {
+  const normalizedName = normalizeOriginalFilename(name || '');
+  const safeName = sanitizeFilename(path.basename(normalizedName));
+  return path.extname(safeName).slice(1).toLowerCase();
+}
+
+function isBlockedFilename(name) {
+  const blockedExtensions = uploadValidation.BLOCKED_EXTENSIONS || [];
+  const ext = getFileExtension(name);
+  return ext && blockedExtensions.includes(ext);
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, config.UPLOAD_DIR);
@@ -88,7 +100,21 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = uploadValidation.ALLOWED_MIME_TYPES || config.ALLOWED_FILE_TYPES || [];
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  const allowUnknownMimeTypes = uploadValidation.ALLOW_UNKNOWN_MIME_TYPES === true;
+  const allowUnlistedMimeTypes = uploadValidation.ALLOW_UNLISTED_MIME_TYPES === true;
+  const isUnknownMimeType = !file.mimetype || file.mimetype === 'application/octet-stream';
+
+  if (isBlockedFilename(file.originalname)) {
+    cb(new Error('Blocked file extension'), false);
+    return;
+  }
+
+  if (
+    allowedMimeTypes.length === 0 ||
+    allowedMimeTypes.includes(file.mimetype) ||
+    allowUnlistedMimeTypes ||
+    (allowUnknownMimeTypes && isUnknownMimeType)
+  ) {
     cb(null, true);
   } else {
     cb(new Error('Invalid file type'), false);
@@ -120,6 +146,8 @@ class FileController {
   getUploadConfig(req, res) {
     const payload = {
       maxFileSize: uploadValidation.MAX_FILE_SIZE || config.MAX_FILE_SIZE,
+      allowUnknownMimeTypes: uploadValidation.ALLOW_UNKNOWN_MIME_TYPES === true,
+      allowUnlistedMimeTypes: uploadValidation.ALLOW_UNLISTED_MIME_TYPES === true,
       allowedMimeTypes: uploadValidation.ALLOWED_MIME_TYPES || config.ALLOWED_FILE_TYPES || [],
       mimeExtensionMap: uploadValidation.MIME_EXTENSION_MAP || {},
       blockedExtensions: uploadValidation.BLOCKED_EXTENSIONS || [],
@@ -216,6 +244,13 @@ class FileController {
   }
 
   parseUpload(req, res, callback) {
+    if (typeof req.setTimeout === 'function') {
+      req.setTimeout(config.TRANSFER_TIMEOUT_MS);
+    }
+    if (typeof res.setTimeout === 'function') {
+      res.setTimeout(config.TRANSFER_TIMEOUT_MS);
+    }
+
     let callbackCalled = false;
     const done = (result) => {
       if (callbackCalled) return;

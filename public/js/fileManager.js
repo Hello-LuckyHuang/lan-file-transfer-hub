@@ -93,6 +93,8 @@
         this.app.showStatus(this.app.t('status.upload_config_load_failed'), 'warning');
         this.validationConfig = {
           maxFileSize: Number.MAX_SAFE_INTEGER,
+          allowUnknownMimeTypes: true,
+          allowUnlistedMimeTypes: true,
           allowedMimeTypes: [],
           mimeExtensionMap: {},
           blockedExtensions: [],
@@ -671,9 +673,12 @@
 
     if (validFiles.length === 0) return;
 
-    validFiles.forEach((file) => this.uploadSingleFile(file));
     fileInput.value = '';
     document.getElementById('upload-btn').disabled = true;
+
+    for (const file of validFiles) {
+      await this.uploadSingleFile(file);
+    }
   }
 
   performFullFileCheck(file) {
@@ -701,8 +706,17 @@
   }
 
   checkFileFormat(file) {
+    if (this.validationConfig.allowUnlistedMimeTypes) return true;
+
     const allowedTypes = this.validationConfig.allowedMimeTypes || [];
     if (allowedTypes.length === 0) return true;
+    if (
+      this.validationConfig.allowUnknownMimeTypes &&
+      (!file.type || file.type === 'application/octet-stream')
+    ) {
+      return true;
+    }
+
     if (!allowedTypes.includes(file.type)) {
       this.showTransferError(
         this.app.t('validation.file_type_not_allowed_title', { name: file.name }),
@@ -783,6 +797,14 @@
     const transferId = this.createTransferId('upload');
     const deviceName = this.app.getDeviceName();
 
+    return new Promise((resolve) => {
+      let resolved = false;
+      const resolveUpload = (status) => {
+        if (resolved) return;
+        resolved = true;
+        resolve({ transferId, fileName: file.name, status });
+      };
+
     this.transferringFiles.add(file.name);
     this.upsertUploadFileState({
       id: transferId,
@@ -860,14 +882,26 @@
         isLocal: true
       });
 
-      this.emitTransferStatus({
-        transferId,
-        fileName: file.name,
-        status: 'uploading',
-        progress,
-        speedText,
-        fileSize: file.size
-      });
+      const shouldEmitStatus = !request ||
+        progress >= 100 ||
+        progress - (request.lastStatusProgress || 0) >= 1 ||
+        now - (request.lastStatusEmitAt || 0) >= 1000;
+
+      if (shouldEmitStatus) {
+        if (request) {
+          request.lastStatusProgress = progress;
+          request.lastStatusEmitAt = now;
+        }
+
+        this.emitTransferStatus({
+          transferId,
+          fileName: file.name,
+          status: 'uploading',
+          progress,
+          speedText,
+          fileSize: file.size
+        });
+      }
     });
 
     xhr.addEventListener('load', () => {
@@ -893,6 +927,7 @@
         });
         this.app.showStatus(this.app.t('status.upload_success', { name: file.name }), 'success');
         this.loadFiles();
+        resolveUpload('completed');
         return;
       }
 
@@ -941,6 +976,7 @@
 
       this.app.showStatus(errorMessage, 'danger');
       this.showTransferError(errorMessage, details);
+      resolveUpload('failed');
     });
 
     xhr.addEventListener('abort', () => {
@@ -978,6 +1014,7 @@
       });
 
       this.app.showStatus(this.app.t('status.upload_cancelled', { name: file.name }), 'info');
+      resolveUpload('cancelled');
     });
 
     xhr.addEventListener('error', () => {
@@ -1014,10 +1051,13 @@
       const details = this.app.t('validation.network_error_details');
       this.app.showStatus(errorMessage, 'danger');
       this.showTransferError(errorMessage, details);
+      resolveUpload('failed');
     });
 
     xhr.open('POST', '/api/files/upload');
+    xhr.timeout = 0;
     xhr.send(formData);
+    });
   }
 
   finishUploadRequest(transferId, fileName) {
@@ -1034,7 +1074,9 @@
       cancelledByUser: false,
       lastLoaded: 0,
       lastTimestamp: 0,
-      smoothedBps: 0
+      smoothedBps: 0,
+      lastStatusProgress: 0,
+      lastStatusEmitAt: 0
     });
   }
 

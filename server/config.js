@@ -1,5 +1,16 @@
+function readNonNegativeNumber(value, fallback) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
 const uploadValidation = {
   MAX_FILE_SIZE: 10000 * 1024 * 1024, // 10GB
+  ALLOW_UNKNOWN_MIME_TYPES: true,
+  ALLOW_UNLISTED_MIME_TYPES: true,
   ALLOWED_MIME_TYPES: [
     'image/jpeg',
     'image/png',
@@ -39,6 +50,8 @@ const uploadValidation = {
 module.exports = {
   PORT: process.env.PORT || 3000,
   UPLOAD_DIR: './uploads',
+  // 0 disables Node's request/socket timeout, which is safer for multi-GB LAN transfers.
+  TRANSFER_TIMEOUT_MS: readNonNegativeNumber(process.env.TRANSFER_TIMEOUT_MS, 0),
   UPLOAD_VALIDATION: uploadValidation,
   // Backward-compatible aliases
   MAX_FILE_SIZE: uploadValidation.MAX_FILE_SIZE,

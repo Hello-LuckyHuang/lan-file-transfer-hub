@@ -112,8 +112,14 @@ class P2PClient {
     this.pendingTransfer = null;
   }
 
-  uploadFilesToServer(targetDeviceId, files) {
+  async uploadFilesToServer(targetDeviceId, files) {
     for (const file of files) {
+      await this.uploadFileToServer(targetDeviceId, file);
+    }
+  }
+
+  uploadFileToServer(targetDeviceId, file) {
+    return new Promise((resolve) => {
       const transferId = `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       this.app.fileManager.addTransferItem(transferId, file.name, 'uploading', 0);
       const xhr = new XMLHttpRequest();
@@ -131,9 +137,11 @@ class P2PClient {
         if (xhr.status === 200) {
           this.app.fileManager.updateTransferItem(transferId, 'completed', 100);
           this.app.showStatus(`File ${file.name} uploaded successfully`, 'success');
+          resolve({ transferId, fileName: file.name, status: 'completed' });
         } else {
           this.app.fileManager.updateTransferItem(transferId, 'failed', 0);
           this.app.showStatus(`File ${file.name} upload failed`, 'danger');
+          resolve({ transferId, fileName: file.name, status: 'failed' });
         }
       });
 
@@ -141,14 +149,22 @@ class P2PClient {
         this.app.fileManager.finishUploadRequest(transferId, file.name);
         this.app.fileManager.updateTransferItem(transferId, 'failed', 0);
         this.app.showStatus(`File ${file.name} upload failed`, 'danger');
+        resolve({ transferId, fileName: file.name, status: 'failed' });
+      });
+
+      xhr.addEventListener('abort', () => {
+        this.app.fileManager.finishUploadRequest(transferId, file.name);
+        this.app.fileManager.updateTransferItem(transferId, 'cancelled', 0);
+        resolve({ transferId, fileName: file.name, status: 'cancelled' });
       });
 
       xhr.open('POST', '/api/files/transfer');
+      xhr.timeout = 0;
       const formData = new FormData();
       formData.append('file', file);
       formData.append('targetDeviceId', targetDeviceId);
       xhr.send(formData);
-    }
+    });
   }
 
   handleFileTransferRequest(data) {
