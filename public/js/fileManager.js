@@ -332,7 +332,11 @@
     try {
       const response = await fetch('/api/files/list');
       if (!response.ok) throw new Error('Failed to load files');
-      this.files = await response.json();
+      this.files = (await response.json()).sort((a, b) => {
+        const timeA = new Date(a.mtime || 0).getTime();
+        const timeB = new Date(b.mtime || 0).getTime();
+        return timeB - timeA;
+      });
       if (clearFailedAndCancelled) {
         this.clearUploadStatesByStatuses(['failed', 'cancelled']);
       }
@@ -414,7 +418,11 @@
     const fileCount = document.getElementById('file-count');
     const emptyFiles = document.getElementById('empty-files');
 
-    const stateRows = Array.from(this.uploadFileStates.values());
+    const stateRows = Array.from(this.uploadFileStates.values()).sort((a, b) => {
+      const timeA = new Date(a.updatedAt || 0).getTime();
+      const timeB = new Date(b.updatedAt || 0).getTime();
+      return timeB - timeA;
+    });
     const totalCount = this.files.length + stateRows.length;
     fileCount.textContent = totalCount;
     fileTableBody.innerHTML = '';

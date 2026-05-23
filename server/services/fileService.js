@@ -66,7 +66,12 @@ class FileService {
       return files
         .filter((filename) => !filename.endsWith('.uploading'))
         .map((filename) => this.getFileInfo(filename))
-        .filter(Boolean);
+        .filter(Boolean)
+        .sort((a, b) => {
+          const timeA = new Date(a.mtime).getTime();
+          const timeB = new Date(b.mtime).getTime();
+          return timeB - timeA;
+        });
     } catch (error) {
       console.error('Error getting files:', error);
       return [];

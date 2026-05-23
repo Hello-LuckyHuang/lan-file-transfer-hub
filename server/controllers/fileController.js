@@ -74,6 +74,18 @@ function isBlockedFilename(name) {
   return ext && blockedExtensions.includes(ext);
 }
 
+function buildDownloadDisposition(fileName) {
+  const normalizedName = normalizeOriginalFilename(fileName || '');
+  const safeName = sanitizeFilename(path.basename(normalizedName));
+  const asciiFallback = safeName
+    .replace(/[^\x20-\x7e]+/g, '_')
+    .replace(/["\\;%]/g, '_')
+    .trim() || `download-${Date.now()}`;
+  const encodedFileName = encodeURIComponent(safeName);
+
+  return `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedFileName}`;
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, config.UPLOAD_DIR);
@@ -421,8 +433,7 @@ class FileController {
       return res.status(500).json({ error: 'Error opening file' });
     }
 
-    const encodedFileName = encodeURIComponent(fileName);
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"; filename*=UTF-8''${encodedFileName}`);
+    res.setHeader('Content-Disposition', buildDownloadDisposition(fileName));
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Length', fileInfo.size);
 
@@ -442,8 +453,7 @@ class FileController {
       return res.status(500).json({ error: 'Error opening file' });
     }
 
-    const encodedFileName = encodeURIComponent(filename);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"; filename*=UTF-8''${encodedFileName}`);
+    res.setHeader('Content-Disposition', buildDownloadDisposition(filename));
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Length', fileInfo.size);
 
